@@ -23,6 +23,8 @@ from deep_sort import preprocessing, nn_matching
 from deep_sort.detection import Detection
 from deep_sort.tracker import Tracker
 from tools import generate_detections as gdet
+# pafy
+import pafy
 flags.DEFINE_string('framework', 'tf', '(tf, tflite, trt')
 flags.DEFINE_string('weights', './checkpoints/yolov4-416',
                     'path to weights file')
@@ -37,6 +39,7 @@ flags.DEFINE_float('score', 0.50, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
+flags.DEFINE_string('stream', 'https://www.youtube.com/watch?v=lkIJYc4UH60', 'youtube shibuya stream source')
 
 def main(_argv):
     # Definition of the parameters
@@ -58,7 +61,13 @@ def main(_argv):
     session = InteractiveSession(config=config)
     STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
     input_size = FLAGS.size
-    video_path = FLAGS.video
+
+    if FLAGS.stream is not None:
+        url_pafy = pafy.new(FLAGS.stream)
+        videoplay = url_pafy.getbest(preftype="mp4")
+        video_path = videoplay.url
+    else:
+        video_path = FLAGS.video
 
     # load tflite model if flag is set
     if FLAGS.framework == 'tflite':

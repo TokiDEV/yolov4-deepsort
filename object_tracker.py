@@ -39,7 +39,9 @@ flags.DEFINE_float('score', 0.50, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
-flags.DEFINE_string('stream', 'https://www.youtube.com/watch?v=lkIJYc4UH60', 'youtube shibuya stream source')
+flags.DEFINE_string('stream', 'rtsp://{ip}:554/stream1', 'tapo c200 rtsp stream source')
+#flags.DEFINE_string('stream', 'https://www.youtube.com/watch?v=lkIJYc4UH60', 'youtube shibuya stream source')
+
 
 def main(_argv):
     # Definition of the parameters

@@ -80,6 +80,7 @@ class Track:
         self._n_init = n_init
         self._max_age = max_age
         self.class_name = class_name
+        self.detection_actual_score = 0
 
     def to_tlwh(self):
         """Get current position in bounding box format `(top left x, top left y,
@@ -142,6 +143,7 @@ class Track:
         self.mean, self.covariance = kf.update(
             self.mean, self.covariance, detection.to_xyah())
         self.features.append(detection.feature)
+        self.detection_actual_score = format(detection.confidence, '.2f')
 
         self.hits += 1
         self.time_since_update = 0

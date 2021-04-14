@@ -35,9 +35,11 @@ flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
 #flags.DEFINE_string('video', './data/video/test.mp4', 'path to input video or set to 0 for webcam')
 rtsp_login = "thomas"
 rtsp_pwd = "thomas"
-rtsp_ip = "10.42.0.93"
+rtsp_ip = "10.42.0.92"
+#rtsp_ip = "10.42.0.93"
 rtsp_port = "554"
-rtsp_channel = "stream1"
+rtsp_channel = "stream2"
+#rtsp_channel = "stream1"
 rtsp_link = "rtsp://"+rtsp_login+":"+rtsp_pwd+"@"+rtsp_ip+":"+rtsp_port+"/"+rtsp_channel
 flags.DEFINE_string('video', rtsp_link, 'tapo c200 rtsp stream source')
 
@@ -214,7 +216,7 @@ def main(_argv):
         scores = np.array([d.confidence for d in detections])
         classes = np.array([d.class_name for d in detections])
         indices = preprocessing.non_max_suppression(boxs, classes, nms_max_overlap, scores)
-        detections = [detections[i] for i in indices]       
+        detections = [detections[i] for i in indices]
 
         # Call the tracker
         tracker.predict()
@@ -231,12 +233,12 @@ def main(_argv):
             color = colors[int(track.track_id) % len(colors)]
             color = [i * 255 for i in color]
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
-            cv2.putText(frame, class_name + "-" + str(track.track_id),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
+            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id))+len(str(track.detection_actual_score)))*17, int(bbox[1])), color, -1)
+            cv2.putText(frame, class_name + "-" + str(track.track_id) + "-" + str(track.detection_actual_score),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
 
         # if enable info flag then print details about each track
             if FLAGS.info:
-                print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
+                print("Tracker ID: {}, Detection Confidence: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), str(track.detection_actual_score), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
 
         # calculate frames per second of running detections
         fps = 1.0 / (time.time() - start_time)

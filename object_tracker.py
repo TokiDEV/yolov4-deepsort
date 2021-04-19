@@ -32,7 +32,7 @@ flags.DEFINE_integer('size', 416, 'resize images to')
 flags.DEFINE_boolean('tiny', False, 'yolo or yolo-tiny')
 flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
 
-#flags.DEFINE_string('video', './data/video/test.mp4', 'path to input video or set to 0 for webcam')
+flags.DEFINE_string('video', './data/video/test.mp4', 'path to input video or set to 0 for webcam')
 rtsp_login = "thomas"
 rtsp_pwd = "thomas"
 rtsp_ip = "10.42.0.92"
@@ -41,7 +41,7 @@ rtsp_port = "554"
 rtsp_channel = "stream2"
 #rtsp_channel = "stream1"
 rtsp_link = "rtsp://"+rtsp_login+":"+rtsp_pwd+"@"+rtsp_ip+":"+rtsp_port+"/"+rtsp_channel
-flags.DEFINE_string('video', rtsp_link, 'tapo c200 rtsp stream source')
+#flags.DEFINE_string('video', rtsp_link, 'tapo c200 rtsp stream source')
 
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
@@ -176,6 +176,7 @@ def main(_argv):
         pred_bbox = [bboxes, scores, classes, num_objects]
 
         # read in all class names from config
+        print(cfg.YOLO.CLASSES)
         class_names = utils.read_class_names(cfg.YOLO.CLASSES)
 
         # by default allow all classes in .names file

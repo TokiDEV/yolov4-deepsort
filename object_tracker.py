@@ -54,6 +54,7 @@ flags.DEFINE_boolean('dont_show', True, 'dont show video output')
 flags.DEFINE_boolean('info', True, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', True, 'count objects being tracked on screen')
 flags.DEFINE_string('stream', None, 'youtube shibuya stream source')
+flags.DEFINE_float('data_min_interval', 1, 'data send/print interval, in seconds')
 #flags.DEFINE_string('stream', 'https://www.youtube.com/watch?v=lkIJYc4UH60', 'youtube shibuya stream source')
 
 
@@ -114,6 +115,7 @@ def main(_argv):
         out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
 
     frame_num = 0
+    last_interval_time = time.time()
     # while video is running
     while True:
         return_value, frame = vid.read()
@@ -251,13 +253,16 @@ def main(_argv):
 
         # calculate frames per second of running detections
         fps = 1.0 / (time.time() - start_time)
-        print(json.dumps({
-            'end': False,
-            'fps': "%.2f" % fps,
-            'frame': frame_num,
-            'tracks': tracks,
-            'time': time.strftime("%m/%d/%Y, %H:%M:%S", time.localtime(start_time))
-        }, indent=4))
+        tdelta = start_time - last_interval_time
+        if tdelta > FLAGS.data_min_interval:
+            print(json.dumps({
+                'end': False,
+                'fps': fps,
+                'frame': frame_num,
+                'tracks': tracks,
+                'time': time.strftime("%m/%d/%Y, %H:%M:%S", time.localtime(start_time))
+            }, indent=4))
+            last_interval_time = start_time
         result = np.asarray(frame)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         

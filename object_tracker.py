@@ -25,14 +25,17 @@ from deep_sort.tracker import Tracker
 from tools import generate_detections as gdet
 # pafy
 import pafy
+#json
+import json
+
 flags.DEFINE_string('framework', 'tf', '(tf, tflite, trt')
-flags.DEFINE_string('weights', './checkpoints/yolov4-416',
+flags.DEFINE_string('weights', cfg.PATH+'/checkpoints/yolov4-tiny-416',
                     'path to weights file')
 flags.DEFINE_integer('size', 416, 'resize images to')
-flags.DEFINE_boolean('tiny', False, 'yolo or yolo-tiny')
+flags.DEFINE_boolean('tiny', True, 'yolo or yolo-tiny')
 flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
 
-flags.DEFINE_string('video', './data/video/test.mp4', 'path to input video or set to 0 for webcam')
+flags.DEFINE_string('video', cfg.PATH+'/data/video/test.mp4', 'path to input video or set to 0 for webcam')
 rtsp_login = "thomas"
 rtsp_pwd = "thomas"
 rtsp_ip = "10.42.0.92"
@@ -47,9 +50,9 @@ flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_float('iou', 0.45, 'iou threshold')
 flags.DEFINE_float('score', 0.50, 'score threshold')
-flags.DEFINE_boolean('dont_show', False, 'dont show video output')
-flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
-flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
+flags.DEFINE_boolean('dont_show', True, 'dont show video output')
+flags.DEFINE_boolean('info', True, 'show detailed info of tracked objects')
+flags.DEFINE_boolean('count', True, 'count objects being tracked on screen')
 flags.DEFINE_string('stream', None, 'youtube shibuya stream source')
 #flags.DEFINE_string('stream', 'https://www.youtube.com/watch?v=lkIJYc4UH60', 'youtube shibuya stream source')
 
@@ -61,7 +64,7 @@ def main(_argv):
     nms_max_overlap = 1.0
     
     # initialize deep sort
-    model_filename = 'model_data/mars-small128.pb'
+    model_filename = cfg.PATH+'/model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename, batch_size=1)
     # calculate cosine distance metric
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
@@ -88,8 +91,6 @@ def main(_argv):
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
-        print(input_details)
-        print(output_details)
     # otherwise load standard tensorflow saved model
     else:
         saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
@@ -120,10 +121,9 @@ def main(_argv):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(frame)
         else:
-            print('Video has ended or failed, try a different video format!')
+            print(json.dumps({'end': True}, indent=4))
             break
         frame_num +=1
-        print('Frame #: ', frame_num)
         frame_size = frame.shape[:2]
         image_data = cv2.resize(frame, (input_size, input_size))
         image_data = image_data / 255.
@@ -176,14 +176,13 @@ def main(_argv):
         pred_bbox = [bboxes, scores, classes, num_objects]
 
         # read in all class names from config
-        print(cfg.YOLO.CLASSES)
         class_names = utils.read_class_names(cfg.YOLO.CLASSES)
 
         # by default allow all classes in .names file
-        #allowed_classes = list(class_names.values())
+        allowed_classes = list(class_names.values())
         
         # custom allowed classes (uncomment line below to customize tracker for only people)
-        allowed_classes = ['person']
+        #allowed_classes = ['person']
 
         # loop through objects and use class index to get class name, allow only classes in allowed_classes list
         names = []
@@ -199,7 +198,7 @@ def main(_argv):
         count = len(names)
         if FLAGS.count:
             cv2.putText(frame, "Objects being tracked: {}".format(count), (5, 35), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 255, 0), 2)
-            print("Objects being tracked: {}".format(count))
+            #print(frame_num + "Objects being tracked: {}".format(count))
         # delete detections that are not in allowed_classes
         bboxes = np.delete(bboxes, deleted_indx, axis=0)
         scores = np.delete(scores, deleted_indx, axis=0)
@@ -223,12 +222,21 @@ def main(_argv):
         tracker.predict()
         tracker.update(detections)
 
+        # Store tracks for json...
+        tracks = []
+
         # update tracks
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
             bbox = track.to_tlbr()
             class_name = track.get_class()
+            t = dict()
+            t["class"] = class_name
+            t["bbox"] = bbox.tolist()
+            t["id"] = track.track_id
+            t["confidence"] = track.detection_actual_score
+            tracks.append(t)
             
         # draw bbox on screen
             color = colors[int(track.track_id) % len(colors)]
@@ -243,7 +251,7 @@ def main(_argv):
 
         # calculate frames per second of running detections
         fps = 1.0 / (time.time() - start_time)
-        print("FPS: %.2f" % fps)
+        print(json.dumps({'end': False, 'fps': "%.2f" % fps, 'frame': frame_num, 'tracks': tracks}, indent=4))
         result = np.asarray(frame)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         

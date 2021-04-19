@@ -251,7 +251,13 @@ def main(_argv):
 
         # calculate frames per second of running detections
         fps = 1.0 / (time.time() - start_time)
-        print(json.dumps({'end': False, 'fps': "%.2f" % fps, 'frame': frame_num, 'tracks': tracks}, indent=4))
+        print(json.dumps({
+            'end': False,
+            'fps': "%.2f" % fps,
+            'frame': frame_num,
+            'tracks': tracks,
+            'time': time.strftime("%m/%d/%Y, %H:%M:%S", time.localtime(start_time))
+        }, indent=4))
         result = np.asarray(frame)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         

@@ -260,7 +260,7 @@ def main(_argv):
                 'fps': fps,
                 'frame': frame_num,
                 'tracks': tracks,
-                'time': time.strftime("%m/%d/%Y, %H:%M:%S", time.localtime(start_time))
+                'time': time.strftime("%d/%m/%Y, %H:%M:%S", time.localtime(start_time))
             }, indent=4))
             last_interval_time = start_time
         result = np.asarray(frame)

@@ -258,9 +258,9 @@ def main(_argv):
             print(json.dumps({
                 'end': False,
                 'fps': fps,
-                'frame': frame_num,
+                'frame_num': frame_num,
                 'tracks': tracks,
-                'time': time.strftime("%d/%m/%Y, %H:%M:%S", time.localtime(start_time))
+                'time': time.strftime("%d/%m/%Y, %H:%M:%S", time.gmtime(start_time))
             }, indent=4))
             last_interval_time = start_time
         result = np.asarray(frame)

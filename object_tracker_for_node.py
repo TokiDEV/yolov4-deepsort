@@ -65,10 +65,12 @@ def main(_argv):
             if data['end']:
                 break
             id = data['frame_id']
-            frame = cv2.imdecode(np.array(data['frame_image'], dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+            frame = np.array(data['frame_image'], dtype=np.uint8)
+            #print(frame)
+            #frame = cv2.imdecode(frame, cv2.IMREAD_UNCHANGED)
+            #frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            frame_size = frame.shape[:2]
             image_data = cv2.resize(frame, (input_size, input_size))
             image_data = image_data / 255.
             image_data = image_data[np.newaxis, ...].astype(np.float32)
@@ -126,7 +128,6 @@ def main(_argv):
                 else:
                     names.append(class_name)
             names = np.array(names)
-            count = len(names)
 
             # delete detections that are not in allowed_classes
             bboxes = np.delete(bboxes, deleted_indx, axis=0)

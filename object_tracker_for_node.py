@@ -12,7 +12,6 @@ import core.utils as utils
 from core.yolov4 import filter_boxes
 from tensorflow.python.saved_model import tag_constants
 from core.config import cfg
-import cv2
 import numpy as np
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
@@ -66,13 +65,8 @@ def main(_argv):
                 break
             id = data['frame_id']
             frame = np.array(data['frame_image'], dtype=np.uint8)
-            #print(frame)
-            #frame = cv2.imdecode(frame, cv2.IMREAD_UNCHANGED)
-            #frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            image_data = cv2.resize(frame, (input_size, input_size))
-            image_data = image_data / 255.
+            image_data = frame / 255.
             image_data = image_data[np.newaxis, ...].astype(np.float32)
 
             # tf

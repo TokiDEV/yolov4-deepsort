@@ -137,28 +137,39 @@ def main(_argv):
             indices = preprocessing.non_max_suppression(boxs, classes, nms_max_overlap, scores)
             detections = [detections[i] for i in indices]
 
+            ds = []
+            for detection in detections:
+                d = dict()
+                d["bbox"] = detection.tlwh.tolist()
+                d["confidence"] = detection.confidence
+                d["class"] = detection.class_name
+                ds.append(d)
+
+            # send data to Node (without tracking...)
+            print(json.dumps(ds))
+
             # Call the tracker
-            tracker.predict()
-            tracker.update(detections)
-
-            # Store tracks for json...
-            tracks = []
-
-            # update tracks
-            for track in tracker.tracks:
-                if not track.is_confirmed() or track.time_since_update > 1:
-                    continue
-                bbox = track.to_tlbr()
-                class_name = track.get_class()
-                t = dict()
-                t["class"] = class_name
-                t["bbox"] = bbox.tolist()
-                t["id"] = track.track_id
-                t["confidence"] = track.detection_actual_score
-                tracks.append(t)
+            # tracker.predict()
+            # tracker.update(detections)
+            #
+            # # Store tracks for json...
+            # tracks = []
+            #
+            # # update tracks
+            # for track in tracker.tracks:
+            #     if not track.is_confirmed() or track.time_since_update > 1:
+            #         continue
+            #     bbox = track.to_tlbr()
+            #     class_name = track.get_class()
+            #     t = dict()
+            #     t["class"] = class_name
+            #     t["bbox"] = bbox.tolist()
+            #     t["id"] = track.track_id
+            #     t["confidence"] = track.detection_actual_score
+            #     tracks.append(t)
 
             # send data to Node!
-            print(json.dumps(tracks))
+            # print(json.dumps(tracks))
 
 
 if __name__ == '__main__':

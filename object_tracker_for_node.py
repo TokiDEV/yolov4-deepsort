@@ -63,7 +63,6 @@ def main(_argv):
             data = json.loads(data)
             if data['end']:
                 break
-            id = data['frame_id']
             frame = np.array(data['frame_image'], dtype=np.uint8)
 
             image_data = frame / 255.
@@ -159,10 +158,7 @@ def main(_argv):
                 tracks.append(t)
 
             # send data to Node!
-            print(json.dumps({
-                'frame_id': id,
-                'result': tracks
-            }))
+            print(json.dumps(tracks))
 
 
 if __name__ == '__main__':

@@ -159,11 +159,10 @@ def main(_argv):
             for track in tracker.tracks:
                 if not track.is_confirmed() or track.time_since_update > 1:
                     continue
-                bbox = track.to_tlbr()
                 class_name = track.get_class()
                 t = dict()
                 t["class"] = class_name
-                t["bbox"] = bbox.tolist()
+                t["bbox"] = track.tlwh.tolist()
                 t["id"] = track.track_id
                 t["confidence"] = track.detection_actual_score
                 tracks.append(t)

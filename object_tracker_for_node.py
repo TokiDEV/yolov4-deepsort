@@ -161,7 +161,7 @@ def main(_argv):
                     continue
                 class_name = track.get_class()
                 t = dict()
-                bbs = track.tlwh.tolist()
+                bbs = track.to_tlwh().tolist()
                 t["class"] = class_name
                 bbox = dict()
                 bbox["x"] = bbs[0]

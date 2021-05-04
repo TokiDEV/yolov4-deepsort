@@ -161,13 +161,13 @@ def main(_argv):
                     continue
                 class_name = track.get_class()
                 t = dict()
-                bbs = track.to_tlwh().tolist()
+                bbs = track.to_tlbr().tolist()
                 t["class"] = class_name
                 bbox = dict()
-                bbox["x"] = bbs[0]
-                bbox["y"] = bbs[1]
-                bbox["width"] = bbs[2]
-                bbox["height"] = bbs[3]
+                bbox["minX"] = bbs[0]
+                bbox["minY"] = bbs[1]
+                bbox["maxX"] = bbs[2]
+                bbox["maxY"] = bbs[3]
                 t["bbox"] = bbox
                 t["id"] = track.track_id
                 t["confidence"] = track.detection_actual_score

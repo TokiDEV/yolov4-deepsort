@@ -164,10 +164,10 @@ def main(_argv):
                 bbs = track.to_tlbr().tolist()
                 t["class"] = class_name
                 bbox = dict()
-                bbox["minX"] = bbs[0]
-                bbox["minY"] = bbs[1]
-                bbox["maxX"] = bbs[2]
-                bbox["maxY"] = bbs[3]
+                bbox["left"] = bbs[0]
+                bbox["top"] = bbs[1]
+                bbox["right"] = bbs[2]
+                bbox["bottom"] = bbs[3]
                 t["bbox"] = bbox
                 t["id"] = track.track_id
                 t["confidence"] = track.detection_actual_score

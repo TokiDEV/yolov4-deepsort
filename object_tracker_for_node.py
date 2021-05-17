@@ -170,7 +170,7 @@ def main(_argv):
                 bbox["bottom"] = bbs[3]
                 t["bbox"] = bbox
                 t["id"] = track.track_id
-                t["confidence"] = track.detection_actual_score
+                t["score"] = track.detection_actual_score
                 tracks.append(t)
 
             #send data to Node!
